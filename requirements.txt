@@ -3,6 +3,8 @@ uvicorn
 python-multipart
 openai>=1.0.0
 numpy
-pypdf==4.2.0
+pypdf
 docx2txt
 python-docx
+python-dotenv
+
