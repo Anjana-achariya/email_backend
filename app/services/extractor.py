@@ -1,4 +1,4 @@
-import fitz
+from pypdf import PdfReader
 import docx2txt
 from fastapi import UploadFile
 import tempfile
@@ -7,10 +7,10 @@ import os
 
 def extract_text_from_pdf(path: str) -> str:
     try:
-        doc = fitz.open(path)
+        reader = PdfReader(path)
         text = ""
-        for page in doc:
-            text += page.get_text()
+        for page in reader.pages:
+            text += page.extract_text() or ""
         return text.strip()
     except Exception as e:
         return f"PDF extraction error: {e}"
@@ -71,3 +71,4 @@ def extract_text_from_path(path: str) -> str:
         return extract_text_from_txt(path)
     else:
         return f"Unsupported file type: {suffix}"
+
