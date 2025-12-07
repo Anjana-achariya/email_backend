@@ -4,49 +4,49 @@ from fastapi import UploadFile
 import tempfile
 import os
 
-
 def extract_text_from_pdf(path: str) -> str:
     try:
         reader = PdfReader(path)
-        text = ""
-        for page in reader.pages:
-            text += page.extract_text() or ""
+        text = "".join(page.extract_text() or "" for page in reader.pages)
         return text.strip()
-    except Exception as e:
-        return f"PDF extraction error: {e}"
-
+    except Exception:
+        return ""
 
 def extract_text_from_docx(path: str) -> str:
     try:
         text = docx2txt.process(path)
-        return text.strip()
-    except Exception as e:
-        return f"DOCX extraction error: {e}"
-
+        return text.strip() if text else ""
+    except Exception:
+        return ""
 
 def extract_text_from_txt(path: str) -> str:
     try:
         with open(path, "r", encoding="utf-8", errors="ignore") as f:
             return f.read().strip()
-    except Exception as e:
-        return f"TXT extraction error: {e}"
-
+    except Exception:
+        return ""
 
 def extract_from_textarea(text: str) -> str:
-    if not text:
-        return ""
-    return text.strip()
-
+    return text.strip() if text else ""
 
 def extract_text(file: UploadFile) -> str:
+    """
+    Handles all uploaded files. Supports PDF, DOCX, TXT.
+    Safely writes the uploaded file to a temporary location.
+    """
+
     suffix = os.path.splitext(file.filename)[1].lower()
 
-    
+    contents = file.file.read()
+    if not contents:
+        return ""
+
+    file.file.seek(0)
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-        tmp.write(file.file.read())
+        tmp.write(contents)
         tmp_path = tmp.name
 
-    
     if suffix == ".pdf":
         text = extract_text_from_pdf(tmp_path)
     elif suffix == ".docx":
@@ -54,11 +54,14 @@ def extract_text(file: UploadFile) -> str:
     elif suffix == ".txt":
         text = extract_text_from_txt(tmp_path)
     else:
-        text = f"Unsupported file type: {suffix}"
+        text = ""
 
-    os.remove(tmp_path)
+    try:
+        os.remove(tmp_path)
+    except Exception:
+        pass
+
     return text.strip()
-
 
 def extract_text_from_path(path: str) -> str:
     suffix = os.path.splitext(path)[1].lower()
@@ -70,5 +73,4 @@ def extract_text_from_path(path: str) -> str:
     elif suffix == ".txt":
         return extract_text_from_txt(path)
     else:
-        return f"Unsupported file type: {suffix}"
-
+        return ""
