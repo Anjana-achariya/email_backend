@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-multipart
+openai>=1.0.0
+numpy
+pymupdf
+docx2txt
+python-dotenv
+python-docx
+
