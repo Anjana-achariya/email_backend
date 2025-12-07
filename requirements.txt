@@ -1,10 +1,10 @@
 fastapi
 uvicorn
 python-multipart
-openai>=1.0.0
 numpy
-pymupdf
-docx2txt
 python-dotenv
+openai>=1.0.0
+pymupdf==1.23.7
+pymupdfb==1.23.7
+docx2txt
 python-docx
-
